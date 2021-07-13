@@ -136,7 +136,7 @@ if __name__ == "__main__":
             ).to(device, non_blocking=True)
             N, C, H, W = img1.size()
             label = pack[2].to(device, non_blocking=True)
-            bg_score = torch.ones((N, 1))
+            bg_score = label.new_ones((N, 1))
             label = torch.cat((bg_score, label), dim=1)
             label = label.to(device, non_blocking=True).unsqueeze(2).unsqueeze(3)
 
