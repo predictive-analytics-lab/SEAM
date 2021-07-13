@@ -317,7 +317,7 @@ if __name__ == "__main__":
                         "loss_ecr": loss_ecr.item(),
                     }
                     # Set the losses as postfixex of the progress bar
-                    pbar.set_postfix(*loss_dict)
+                    pbar.set_postfix(**loss_dict)
 
                     itr = optimizer.global_step - 1
                     tblogger.add_scalars("loss", loss_dict, itr)
