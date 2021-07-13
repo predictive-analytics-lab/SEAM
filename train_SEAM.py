@@ -230,7 +230,7 @@ if __name__ == "__main__":
                 avg_meter.pop()
 
                 # Visualization for training process
-                img_8 = img1[0].numpy().transpose((1, 2, 0))
+                img_8 = img1[0].cpu().numpy().transpose((1, 2, 0))
                 img_8 = np.ascontiguousarray(img_8)
                 mean = (0.485, 0.456, 0.406)
                 std = (0.229, 0.224, 0.225)
