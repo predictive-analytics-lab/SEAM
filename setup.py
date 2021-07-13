@@ -38,6 +38,7 @@ setup(
         "tensorboard",
         "torch",
         "torchvision",
+        "tqdm",
     ],
     extras_require={
         "dev": [
