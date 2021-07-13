@@ -19,7 +19,7 @@ setup(
     name="SEAM",
     version=version,
     author="Yude Wang, Predictive Analytics Lab (PAL)",
-    description="Fork of the official SEAM code",
+    description="Fork of the official SEAM code.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="",
@@ -34,9 +34,15 @@ setup(
         "pandas",
         "scikit-image",
         "scipy",
+        "pydensecrf @ git+https://git@github.com/lucasb-eyer/pydensecrf.git",
+        "tensorboard",
         "torch",
         "torchvision",
     ],
-    dependency_links=["pydensecrf @ git+ssh://git@github.com/lucasb-eyer/pydensecrf.git"]
-
+    extras_require={
+        "dev": [
+            "black",
+            "isort",
+        ],
+    },
 )
