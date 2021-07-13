@@ -10,7 +10,7 @@ import voc12.data
 from tool import pyutils, imutils, torchutils, visualization
 import argparse
 import importlib
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 import torch.nn.functional as F
 
 def adaptive_min_pooling_loss(x):
