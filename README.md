@@ -22,7 +22,7 @@ git clone https://github.com/YudeWang/SEAM.git
 ```
 - Install python dependencies.
 ```
-pip install -r requirements.txt
+pip install -r -e .
 ```
 - **Download model weights from [google drive](https://drive.google.com/open?id=1jWsV5Yev-PwKgvvtUM3GnY0ogb50-qKa) or [baidu cloud](https://pan.baidu.com/s/1ymaMeF0ASjQ9oCGI9cmqHQ) (with code 6nmo)**, including ImageNet pretrained models and our training results.
 
