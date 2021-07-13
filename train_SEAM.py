@@ -54,7 +54,9 @@ if __name__ == "__main__":
 
     print(vars(args))
 
-    device = torch.device("cuda" if torch.cuda.is_available() and (not args.no_cuda) else "cpu")
+    device = torch.device(
+        "cuda" if (torch.cuda.is_available() and (not args.no_cuda)) else "cpu"
+    )
     model = getattr(importlib.import_module(args.network), "Net")()
 
     print(model)
@@ -68,7 +70,9 @@ if __name__ == "__main__":
             [
                 imutils.RandomResizeLong(448, 768),
                 transforms.RandomHorizontalFlip(),
-                transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
+                transforms.ColorJitter(
+                    brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1
+                ),
                 np.asarray,
                 model.normalize,
                 imutils.RandomCrop(args.crop_size),
@@ -126,12 +130,12 @@ if __name__ == "__main__":
         for iter, pack in enumerate(train_data_loader):
 
             scale_factor = 0.3
-            img1 = pack[1]
+            img1 = pack[1].to(device, non_blocking=True)
             img2 = F.interpolate(
                 img1, scale_factor=scale_factor, mode="bilinear", align_corners=True
-            )
+            ).to(device, non_blocking=True)
             N, C, H, W = img1.size()
-            label = pack[2]
+            label = pack[2].to(device, non_blocking=True)
             bg_score = torch.ones((N, 1))
             label = torch.cat((bg_score, label), dim=1)
             label = label.to(device, non_blocking=True).unsqueeze(2).unsqueeze(3)
@@ -164,8 +168,12 @@ if __name__ == "__main__":
             cam2 = visualization.max_norm(cam2) * label
             cam_rv2 = visualization.max_norm(cam_rv2) * label
 
-            loss_cls1 = F.multilabel_soft_margin_loss(label1[:, 1:, :, :], label[:, 1:, :, :])
-            loss_cls2 = F.multilabel_soft_margin_loss(label2[:, 1:, :, :], label[:, 1:, :, :])
+            loss_cls1 = F.multilabel_soft_margin_loss(
+                label1[:, 1:, :, :], label[:, 1:, :, :]
+            )
+            loss_cls2 = F.multilabel_soft_margin_loss(
+                label2[:, 1:, :, :], label[:, 1:, :, :]
+            )
 
             ns, cs, hs, ws = cam2.size()
             loss_er = torch.mean(torch.abs(cam1[:, 1:, :, :] - cam2[:, 1:, :, :]))
@@ -177,10 +185,14 @@ if __name__ == "__main__":
             tensor_ecr1 = torch.abs(max_onehot(cam2.detach()) - cam_rv1)  # *eq_mask
             tensor_ecr2 = torch.abs(max_onehot(cam1.detach()) - cam_rv2)  # *eq_mask
             loss_ecr1 = torch.mean(
-                torch.topk(tensor_ecr1.view(ns, -1), k=(int)(21 * hs * ws * 0.2), dim=-1)[0]
+                torch.topk(
+                    tensor_ecr1.view(ns, -1), k=(int)(21 * hs * ws * 0.2), dim=-1
+                )[0]
             )
             loss_ecr2 = torch.mean(
-                torch.topk(tensor_ecr2.view(ns, -1), k=(int)(21 * hs * ws * 0.2), dim=-1)[0]
+                torch.topk(
+                    tensor_ecr2.view(ns, -1), k=(int)(21 * hs * ws * 0.2), dim=-1
+                )[0]
             )
             loss_ecr = loss_ecr1 + loss_ecr2
 
@@ -208,7 +220,8 @@ if __name__ == "__main__":
                     "Iter:%5d/%5d" % (optimizer.global_step - 1, max_step),
                     "loss:%.4f %.4f %.4f %.4f"
                     % avg_meter.get("loss", "loss_cls", "loss_er", "loss_ecr"),
-                    "imps:%.1f" % ((iter + 1) * args.batch_size / timer.get_stage_elapsed()),
+                    "imps:%.1f"
+                    % ((iter + 1) * args.batch_size / timer.get_stage_elapsed()),
                     "Fin:%s" % (timer.str_est_finish()),
                     "lr: %.4f" % (optimizer.param_groups[0]["lr"]),
                     flush=True,
@@ -231,14 +244,34 @@ if __name__ == "__main__":
                 input_img = img_8.transpose((2, 0, 1))
                 h = H // 4
                 w = W // 4
-                p1 = F.interpolate(cam1, (h, w), mode="bilinear")[0].detach().cpu().numpy()
-                p2 = F.interpolate(cam2, (h, w), mode="bilinear")[0].detach().cpu().numpy()
-                p_rv1 = F.interpolate(cam_rv1, (h, w), mode="bilinear")[0].detach().cpu().numpy()
-                p_rv2 = F.interpolate(cam_rv2, (h, w), mode="bilinear")[0].detach().cpu().numpy()
-
-                image = cv2.resize(img_8, (w, h), interpolation=cv2.INTER_CUBIC).transpose(
-                    (2, 0, 1)
+                p1 = (
+                    F.interpolate(cam1, (h, w), mode="bilinear")[0]
+                    .detach()
+                    .cpu()
+                    .numpy()
                 )
+                p2 = (
+                    F.interpolate(cam2, (h, w), mode="bilinear")[0]
+                    .detach()
+                    .cpu()
+                    .numpy()
+                )
+                p_rv1 = (
+                    F.interpolate(cam_rv1, (h, w), mode="bilinear")[0]
+                    .detach()
+                    .cpu()
+                    .numpy()
+                )
+                p_rv2 = (
+                    F.interpolate(cam_rv2, (h, w), mode="bilinear")[0]
+                    .detach()
+                    .cpu()
+                    .numpy()
+                )
+
+                image = cv2.resize(
+                    img_8, (w, h), interpolation=cv2.INTER_CUBIC
+                ).transpose((2, 0, 1))
                 CLS1, CAM1, _, _ = visualization.generate_vis(
                     p1,
                     None,
