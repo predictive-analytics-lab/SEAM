@@ -131,7 +131,6 @@ if __name__ == "__main__":
         with tqdm(
             total=len(train_data_loader),
             desc=f"Epoch {ep} of training",
-            colour="#fac000",
         ) as pbar:
             for iter, pack in enumerate(train_data_loader):
 
