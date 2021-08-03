@@ -1,6 +1,5 @@
 import argparse
 import importlib
-import random
 
 import numpy as np
 import torch
@@ -14,7 +13,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", default=8, type=int)
-    parser.add_argument("--max_epoches", default=8, type=int)
+    parser.add_argument("--max_epochs", default=8, type=int)
     parser.add_argument("--network", default="network.resnet38_aff", type=str)
     parser.add_argument("--lr", default=0.01, type=float)
     parser.add_argument("--num_workers", default=8, type=int)
@@ -51,7 +50,9 @@ if __name__ == "__main__":
             imutils.RandomHorizontalFlip(),
         ],
         img_transform_list=[
-            transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
+            transforms.ColorJitter(
+                brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1
+            ),
             np.asarray,
             model.normalize,
             imutils.HWC_to_CHW,
@@ -71,14 +72,18 @@ if __name__ == "__main__":
         drop_last=True,
         worker_init_fn=worker_init_fn,
     )
-    max_step = len(train_dataset) // args.batch_size * args.max_epoches
+    max_step = len(train_dataset) // args.batch_size * args.max_epochs
 
     param_groups = model.get_parameter_groups()
     optimizer = torchutils.PolyOptimizer(
         [
             {"params": param_groups[0], "lr": args.lr, "weight_decay": args.wt_dec},
             {"params": param_groups[1], "lr": 2 * args.lr, "weight_decay": 0},
-            {"params": param_groups[2], "lr": 10 * args.lr, "weight_decay": args.wt_dec},
+            {
+                "params": param_groups[2],
+                "lr": 10 * args.lr,
+                "weight_decay": args.wt_dec,
+            },
             {"params": param_groups[3], "lr": 20 * args.lr, "weight_decay": 0},
         ],
         lr=args.lr,
@@ -104,7 +109,7 @@ if __name__ == "__main__":
 
     timer = pyutils.Timer("Session started: ")
 
-    for ep in range(args.max_epoches):
+    for ep in range(args.max_epochs):
 
         for iter, pack in enumerate(train_data_loader):
 
@@ -149,7 +154,8 @@ if __name__ == "__main__":
                     "loss:%.4f %.4f %.4f %.4f"
                     % avg_meter.get("loss", "bg_loss", "fg_loss", "neg_loss"),
                     "cnt:%.0f %.0f %.0f" % avg_meter.get("bg_cnt", "fg_cnt", "neg_cnt"),
-                    "imps:%.1f" % ((iter + 1) * args.batch_size / timer.get_stage_elapsed()),
+                    "imps:%.1f"
+                    % ((iter + 1) * args.batch_size / timer.get_stage_elapsed()),
                     "Fin:%s" % (timer.str_est_finish()),
                     "lr: %.4f" % (optimizer.param_groups[0]["lr"]),
                     flush=True,
