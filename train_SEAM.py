@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", default=8, type=int)
-    parser.add_argument("--max_epoches", default=8, type=int)
+    parser.add_argument("--max_epochs", default=8, type=int)
     parser.add_argument("--network", default="network.resnet38_SEAM", type=str)
     parser.add_argument("--lr", default=0.01, type=float)
     parser.add_argument("--num_workers", default=8, type=int)
@@ -340,5 +340,5 @@ if __name__ == "__main__":
 
     print("finished training.")
     model_save_path = Path(args.session_name).with_suffix(".pth")
-    torch.save(model.module.state_dict(), model_save_path)
+    torch.save(model.state_dict(), model_save_path)
     print(f"Parameters of Final model saved to {model_save_path.resolve()}")
