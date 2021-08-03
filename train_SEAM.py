@@ -91,7 +91,7 @@ if __name__ == "__main__":
         pin_memory=True,
         drop_last=True,
     )
-    max_step = len(train_dataset) // args.batch_size * args.max_epoches
+    max_step = len(train_dataset) // args.batch_size * args.max_epochs
 
     param_groups = model.get_parameter_groups()
     optimizer = torchutils.PolyOptimizer(
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     avg_meter = pyutils.AverageMeter("loss", "loss_cls", "loss_er", "loss_ecr")
 
     timer = pyutils.Timer("Session started: ")
-    for ep in range(args.max_epoches):
+    for ep in range(args.max_epochs):
         with tqdm(
             total=len(train_data_loader),
             desc=f"Epoch {ep} of training",
